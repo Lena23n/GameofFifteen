@@ -1,4 +1,5 @@
 function Game (id) {
+	this.id = id;
 	this.fieldSize = {
 		w: 4,
 		h: 4
@@ -6,11 +7,9 @@ function Game (id) {
 	this.gameArray = [];
 	this.drawer = new CanvasDrawer();
 	this.holder = null;
-	this.arrayCoords = {
-		x: null,
-		h: null
-	};
-	//this.drawer.draw(this.gameArray)
+	this.canvasOffsetX = null;
+	this.canvasOffsetY = null;
+	//this.drawer.drawCell(this.gameArray)
 }
 
 Game.prototype =  {
@@ -18,62 +17,52 @@ Game.prototype =  {
 		var self = this;
 
 		this.drawer.createCanvas(this.fieldSize.w, this.fieldSize.h);
-		this.holder = this.drawer.canvas;
+		this.holder = document.getElementById(this.id);
 
 		// todo create 'holder' element for game
 		this.holder.addEventListener('click', function (e) {
 			self.clickEvent(e);
 		});
 
+		this.canvasOffsetX = this.holder.offsetLeft;
+		this.canvasOffsetY = this.holder.offsetTop;
+
 		this.startGame();
 	},
 
-	startGame : function () {
+	attachToDOM : function (id) {
+		document.getElementById(id).appendChild(this.drawer.element);
+	},
 
+	startGame : function () {
 		// todo don't use different data types in array
 		this.gameArray = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0];
-		//this.gameArray = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,0]];
+		this.attachToDOM(this.id);
 		this.shuffle(this.gameArray);
-		console.log(this.gameArray);
 		this.drawGameItems(this.gameArray);
-		/*this.drawer.draw(this.gameArray[0], 1,1);*/
+		console.log(this.gameArray.indexOf(0))
 	},
 
 	shuffle : function (array) {
-		/*var n = 4,
-			k = 0,
-			temporal,
-			l,
-			j;
-
-		for (var i = 0; i < n; i++) {
-				j = Math.floor( Math.random()*i );
-				l = Math.floor( Math.random()*k );
-				temporal = array[i][k];
-					array[i][k] = array [j][l];
-					array[j][l] = temporal;
-			k++;
-		}*/
-
-		var i = array.length,
-			temporal,
-			changable;
-		if(i==0) { return array; }
-		while (i--) {
-			changable = Math.floor( Math.random()*i );
-			temporal = array[i],
-				array[i] = array [changable],
-				array[changable] = temporal;
-		}
-		return array;
+		return array.sort(function(){return Math.random() > 0.5});
 	},
 
 	drawGameItems : function (array) {
-		var count = 0;
+		var x,
+			y,
+			fieldWidth = this.fieldSize.w;
+
+		for ( var i = 0; i < array.length; i++) {
+			var text = array[i];
+			x = i % fieldWidth;
+			y = Math.floor(i/fieldWidth);
+			this.drawer.drawCell(text, x, y);
+		}
+	/*	var count = 0;
 		for (var i = 0; i < array.length; i++) {
-			var text = array[i],
-				x,
+			var x,
 				y;
+
 			if (count < 4) {
 				x = i;
 				y = 0;
@@ -88,12 +77,36 @@ Game.prototype =  {
 				y = 3;
 			}
 
-			this.drawer.draw(text, x, y);
+			this.drawer.drawCell(text, x, y);
 			count++;
-		}
+		}*/
 	},
 
 	clickEvent : function (e) {
+		this.defineCoords(e);
+	},
+
+	defineCoords : function (e) {
+		var x = Math.floor((e.clientX - this.canvasOffsetX)/this.drawer.cellSize.w);
+		var y = Math.floor((e.clientY - this.canvasOffsetY)/this.drawer.cellSize.h);
+
+		this.checkCells(x, y);
+	},
+
+	checkCells : function (x, y) {
+		var i = (this.fieldSize.w*y)+x;
+
+		var emptyCellPosition = this.gameArray.indexOf(0);
+
+		// diff between i and emptyCellPos : +1, -1, +w, -w
+		// diff [between i and emptyCellPos] : 1, w
+
+		if (this.gameArray[i] == 0) {
+
+		}
+	},
+
+	changeCells : function (clicked) {
 
 	},
 
@@ -104,7 +117,7 @@ Game.prototype =  {
 };
 
 function loadPage () {
-	var game = new Game();
+	var game = new Game('game');
 	game.init();
 }
 
