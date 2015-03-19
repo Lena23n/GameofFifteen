@@ -5,8 +5,10 @@ body {
 	width: 500px;
 	height: 500px;
 	margin: 30px auto 0;
+	border: 6px solid #866688;
+	box-shadow: 0 2px 4px black;
 }
 canvas {
 	display: block;
-	border: 2px solid grey;
+	margin: 0 auto;
 }

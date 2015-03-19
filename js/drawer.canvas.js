@@ -39,15 +39,20 @@ CanvasDrawer.prototype =  {
 			textX = graphX+(cellX/2),
 			textY = graphY+(cellY/2);
 
-
-		this.context.fillStyle = "#00F";
-		this.context.strokeStyle = "#F00";
+		this.context.fillStyle = "#603D61";
+		this.context.strokeStyle = "#503251";
 		this.context.font = "italic 14pt Arial";
 		this.context.textBaseline = 'middle';
 		this.context.textAlign = "center";
+		this.context.fillRect(graphX, graphY, cellX, cellY);
 		this.context.strokeRect(graphX, graphY, cellX, cellY);
 
-		if (!text == 0) {
+		if (text == 0) {
+			this.context.fillStyle = "#69486B";
+			this.context.fillRect(graphX, graphY, cellX, cellY);
+			this.context.strokeRect(graphX, graphY, cellX, cellY);
+		} else {
+			this.context.fillStyle = "#ffffff";
 			this.context.fillText(text, textX, textY);
 		}
 	}

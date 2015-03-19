@@ -9,7 +9,10 @@ function Game (id) {
 	this.holder = null;
 	this.canvasOffsetX = null;
 	this.canvasOffsetY = null;
-	//this.drawer.drawCell(this.gameArray)
+/*	this.isWinEndZero = false;
+	this.isWinBeginZero = false;*/
+
+	this.isWinArray = false;
 }
 
 Game.prototype =  {
@@ -36,11 +39,14 @@ Game.prototype =  {
 
 	startGame : function () {
 		// todo don't use different data types in array
-		this.gameArray = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0];
+		this.gameArray = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,0,15];
 		this.attachToDOM(this.id);
-		this.shuffle(this.gameArray);
+		/*this.isWinEndZero = false;
+		this.isWinBeginZero = false;*/
+		this.isWinArray = false;
+	/*	this.shuffle(this.gameArray);*/
 		this.drawGameItems(this.gameArray);
-		console.log(this.gameArray.indexOf(0))
+
 	},
 
 	shuffle : function (array) {
@@ -68,53 +74,57 @@ Game.prototype =  {
 	defineCoords : function (e) {
 		var x = Math.floor((e.clientX - this.canvasOffsetX)/this.drawer.cellSize.w);
 		var y = Math.floor((e.clientY - this.canvasOffsetY)/this.drawer.cellSize.h);
-
 		this.checkCells(x, y);
 	},
 
 	checkCells : function (x, y) {
-		var i = (this.fieldSize.w*y)+x;
+		var i = (this.fieldSize.w*y)+ x,
+			emptyCellPosition = this.gameArray.indexOf(0),
+			positionDifference = Math.abs(i - emptyCellPosition),
+			isRowSiblings = (positionDifference == 1),
+			isColumnSiblings = (positionDifference == this.fieldSize.w),
+			isSameRowSiblings = Math.floor(emptyCellPosition / this.fieldSize.w) == (Math.floor(i / this.fieldSize.w));
 
-		var emptyCellPosition = this.gameArray.indexOf(0),
-			emptyCellPositionX = emptyCellPosition % this.fieldSize.w,
-			emptyCellPositionY = Math.floor(emptyCellPosition / this.fieldSize.w),
-			topCellX = x == emptyCellPositionX,
-			topCellY = y+1 == emptyCellPositionY,
-			bottomCellX = x == emptyCellPositionX,
-			bottomCellY = y-1 == emptyCellPositionY,
-			leftCellX = x+1 == emptyCellPositionX,
-			leftCellY = y == emptyCellPositionY,
-			rightCellX = x-1 == emptyCellPositionX,
-			rightCellY = y == emptyCellPositionY;
-
-		var coordsOfAllBlocks = {
-			0 : [0, 0],
-			1 : [1, 0],
-			2 : [2, 0],
-			3 : [3, 0],
-			4 : [0, 1],
-			5 : [1, 1],
-			6 : [2, 1],
-			7 : [3, 1],
-			8 : [0, 2],
-			9 : [1, 2],
-			10 : [2, 2],
-			11 : [3, 2],
-			12 : [0, 3],
-			13 : [1, 3],
-			14 : [2, 3],
-			15 : [3, 3]
-		};
-
-		if ( topCellX && topCellY||bottomCellX && bottomCellY||leftCellX && leftCellY||rightCellX && rightCellY) {
-			this.exchangeCells(i,emptyCellPosition);
+		if (isRowSiblings && isSameRowSiblings || isColumnSiblings) {
+			this.exchangeCells(i, emptyCellPosition);
 		}
 
-		// diff between i and emptyCellPos : +1, -1, +w, -w
-		// diff [between i and emptyCellPos] : 1, w
+		this.checkWinArray(this.gameArray);
 
-		console.log(i,emptyCellPosition);
+		if (this.isWinArray) {
+			alert('Вы победили!');
+			this.endGame();
+		}
 
+		/*this.checkArrayBeginZero(this.gameArray);
+		this.checkArrayEndZero(this.gameArray);
+
+		if (this.isWinEndZero || this.isWinBeginZero) {
+			alert('Вы победили!');
+			this.endGame();
+		}*/
+
+	},
+
+	checkWinArray : function (gameArray) {
+		for (var i = 0; i < gameArray.length-2; i++) {
+			if((gameArray[i] + 1) !== gameArray[i+1]) return false;
+		}
+		this.isWinArray = true;
+	},
+
+	checkArrayBeginZero : function (gameArray) {
+		for (var i = 0; i < gameArray.length; i++) {
+			if(gameArray[i] !== i) return false;
+		}
+		this.isWinBeginZero = true;
+	},
+
+	checkArrayEndZero : function (gameArray) {
+		for (var i = 0; i < gameArray.length - 1; i++) {
+			if(gameArray[i] !== i+1) return false;
+		}
+		this.isWinEndZero = true;
 	},
 
 	exchangeCells : function (clickedCell,emptyCell) {
@@ -126,7 +136,6 @@ Game.prototype =  {
 	},
 
 	endGame : function () {
-
 		this.startGame();
 	}
 };
