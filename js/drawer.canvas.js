@@ -55,5 +55,21 @@ CanvasDrawer.prototype =  {
 			this.context.fillStyle = "#ffffff";
 			this.context.fillText(text, textX, textY);
 		}
+	},
+
+	drawField : function (field) {
+		this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+		var x,
+			y,
+			fieldWidth = 4;
+
+		for ( var i = 0; i < field.length; i++) {
+			var text = field[i];
+			x = i % fieldWidth;
+			y = Math.floor(i/fieldWidth);
+			this.drawCell(text, x, y);
+		}
 	}
 };
+
+

@@ -1,3 +1,4 @@
+
 function Game (id) {
 	this.id = id;
 	this.fieldSize = {
@@ -9,8 +10,8 @@ function Game (id) {
 	this.holder = null;
 	this.canvasOffsetX = null;
 	this.canvasOffsetY = null;
-/*	this.isWinEndZero = false;
-	this.isWinBeginZero = false;*/
+	/*	this.isWinEndZero = false;
+	 this.isWinBeginZero = false;*/
 
 	this.isWinArray = false;
 }
@@ -39,32 +40,19 @@ Game.prototype =  {
 
 	startGame : function () {
 		// todo don't use different data types in array
-		this.gameArray = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,0,15];
+		this.gameArray = [1,0,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
 		this.attachToDOM(this.id);
 		/*this.isWinEndZero = false;
-		this.isWinBeginZero = false;*/
+		 this.isWinBeginZero = false;*/
 		this.isWinArray = false;
-	/*	this.shuffle(this.gameArray);*/
-		this.drawGameItems(this.gameArray);
+		/*	this.shuffle(this.gameArray);*/
+		this.drawer.drawField(this.gameArray);
 
 	},
 
 	shuffle : function (array) {
+		// todo implement isFieldSolvable
 		return array.sort(function(){return Math.random() > 0.5});
-	},
-
-	drawGameItems : function (array) {
-		this.drawer.context.clearRect(0, 0, this.drawer.canvasWidth, this.drawer.canvasHeight);
-		var x,
-			y,
-			fieldWidth = this.fieldSize.w;
-
-		for ( var i = 0; i < array.length; i++) {
-			var text = array[i];
-			x = i % fieldWidth;
-			y = Math.floor(i/fieldWidth);
-			this.drawer.drawCell(text, x, y);
-		}
 	},
 
 	clickEvent : function (e) {
@@ -97,19 +85,36 @@ Game.prototype =  {
 		}
 
 		/*this.checkArrayBeginZero(this.gameArray);
-		this.checkArrayEndZero(this.gameArray);
+		 this.checkArrayEndZero(this.gameArray);
 
-		if (this.isWinEndZero || this.isWinBeginZero) {
-			alert('Вы победили!');
-			this.endGame();
-		}*/
+		 if (this.isWinEndZero || this.isWinBeginZero) {
+		 alert('Вы победили!');
+		 this.endGame();
+		 }*/
 
 	},
 
 	checkWinArray : function (gameArray) {
-		for (var i = 0; i < gameArray.length-2; i++) {
-			if((gameArray[i] + 1) !== gameArray[i+1]) return false;
+		var isPuzzleSolved = true;
+
+		//for (var i = 0; i < gameArray.length - 1; i++) {
+		//	var currentChip = gameArray[i],
+		//		nextChip = gameArray[i + 1];
+		//	if (currentChip && nextChip > currentChip) {
+		//		// todo implement logic
+		//	}
+		//}
+
+		for (var i = 0; i < gameArray.length; i++) {
+			var obj = gameArray[i];
+			if (obj >= i) {}
 		}
+
+
+		//for (var i = 0; i < gameArray.length-2; i++) {
+		//	if((gameArray[i] + 1) !== gameArray[i+1]) return false;
+		//}
+		// todo rename - isPuzzleSolved
 		this.isWinArray = true;
 	},
 
@@ -132,7 +137,7 @@ Game.prototype =  {
 		this.gameArray[clickedCell] = this.gameArray[emptyCell];
 		this.gameArray[emptyCell] = temp;
 
-		this.drawGameItems(this.gameArray);
+		this.drawer.drawField(this.gameArray);
 	},
 
 	endGame : function () {
