@@ -48,6 +48,7 @@ Game.prototype =  {
 	},
 
 	drawGameItems : function (array) {
+		this.drawer.context.clearRect(0, 0, this.drawer.canvasWidth, this.drawer.canvasHeight);
 		var x,
 			y,
 			fieldWidth = this.fieldSize.w;
@@ -58,28 +59,6 @@ Game.prototype =  {
 			y = Math.floor(i/fieldWidth);
 			this.drawer.drawCell(text, x, y);
 		}
-	/*	var count = 0;
-		for (var i = 0; i < array.length; i++) {
-			var x,
-				y;
-
-			if (count < 4) {
-				x = i;
-				y = 0;
-			} else if (count < 8) {
-				x = i-4;
-				y = 1;
-			} else if (count < 12) {
-				x = i-8;
-				y = 2;
-			} else {
-				x = i-12;
-				y = 3;
-			}
-
-			this.drawer.drawCell(text, x, y);
-			count++;
-		}*/
 	},
 
 	clickEvent : function (e) {
@@ -96,18 +75,54 @@ Game.prototype =  {
 	checkCells : function (x, y) {
 		var i = (this.fieldSize.w*y)+x;
 
-		var emptyCellPosition = this.gameArray.indexOf(0);
+		var emptyCellPosition = this.gameArray.indexOf(0),
+			emptyCellPositionX = emptyCellPosition % this.fieldSize.w,
+			emptyCellPositionY = Math.floor(emptyCellPosition / this.fieldSize.w),
+			topCellX = x == emptyCellPositionX,
+			topCellY = y+1 == emptyCellPositionY,
+			bottomCellX = x == emptyCellPositionX,
+			bottomCellY = y-1 == emptyCellPositionY,
+			leftCellX = x+1 == emptyCellPositionX,
+			leftCellY = y == emptyCellPositionY,
+			rightCellX = x-1 == emptyCellPositionX,
+			rightCellY = y == emptyCellPositionY;
+
+		var coordsOfAllBlocks = {
+			0 : [0, 0],
+			1 : [1, 0],
+			2 : [2, 0],
+			3 : [3, 0],
+			4 : [0, 1],
+			5 : [1, 1],
+			6 : [2, 1],
+			7 : [3, 1],
+			8 : [0, 2],
+			9 : [1, 2],
+			10 : [2, 2],
+			11 : [3, 2],
+			12 : [0, 3],
+			13 : [1, 3],
+			14 : [2, 3],
+			15 : [3, 3]
+		};
+
+		if ( topCellX && topCellY||bottomCellX && bottomCellY||leftCellX && leftCellY||rightCellX && rightCellY) {
+			this.exchangeCells(i,emptyCellPosition);
+		}
 
 		// diff between i and emptyCellPos : +1, -1, +w, -w
 		// diff [between i and emptyCellPos] : 1, w
 
-		if (this.gameArray[i] == 0) {
+		console.log(i,emptyCellPosition);
 
-		}
 	},
 
-	changeCells : function (clicked) {
+	exchangeCells : function (clickedCell,emptyCell) {
+		var temp = this.gameArray[clickedCell];
+		this.gameArray[clickedCell] = this.gameArray[emptyCell];
+		this.gameArray[emptyCell] = temp;
 
+		this.drawGameItems(this.gameArray);
 	},
 
 	endGame : function () {
