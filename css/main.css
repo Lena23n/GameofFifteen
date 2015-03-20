@@ -1,9 +1,14 @@
 body {
 	margin: 0;
 }
+
+div {
+	box-sizing: border-box;
+}
+
 #game {
-	width: 500px;
-	height: 500px;
+	width: 512px;
+	height: 512px;
 	margin: 30px auto 0;
 	border: 6px solid #866688;
 	box-shadow: 0 2px 4px black;
@@ -11,4 +16,43 @@ body {
 canvas {
 	display: block;
 	margin: 0 auto;
+}
+
+.chip {
+	position: absolute;
+	border: 1px solid #503251;
+	font: italic 14pt Arial;
+	color: #ffffff;
+	line-height: 14px;
+	background: #603D61;
+	text-align: center;
+}
+
+.empty-chip {
+	position: absolute;
+	border: 1px solid #503251;
+	background: #69486B;
+}
+
+.wrap {
+	text-align: center;
+	padding-top: 30px;
+}
+
+.canvas-btn, .html-btn {
+	display: inline-block;
+	transition: all 0.25s;
+	cursor: pointer;
+	width: 150px;
+	background: #603D61;
+	border: 3px solid #866688;
+	height: 40px;
+	padding-top: 8px;
+	margin: 0 10px;
+	color: #ffffff;
+}
+
+.canvas-btn:hover, .html-btn:hover, .active {
+	background: #674d69;
+	border: 3px solid #503251;
 }

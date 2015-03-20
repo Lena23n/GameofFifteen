@@ -9,8 +9,6 @@ function CanvasDrawer () {
 	this.width = 500;
 	this.height = 500;
 
-	this.element = null;
-
 	this.cellSize = {
 		w: null,
 		h: null
@@ -20,7 +18,6 @@ function CanvasDrawer () {
 CanvasDrawer.prototype =  {
 	createCanvas : function (w, h) {
 		this.canvas = document.createElement('canvas');
-		this.element = this.canvas;
 		this.context =  this.canvas.getContext('2d');
 		this.canvas.width = this.width;
 		this.canvasWidth = this.canvas.width;
@@ -32,25 +29,25 @@ CanvasDrawer.prototype =  {
 	},
 
 	drawCell : function (text, x, y) {
-		var cellX = this.cellSize.w,
-			cellY = this.cellSize.h,
-			graphX = x*cellX,
-			graphY = y*cellY,
-			textX = graphX+(cellX/2),
-			textY = graphY+(cellY/2);
+		var cellW = this.cellSize.w,
+			cellH = this.cellSize.h,
+			graphX = x*cellW,
+			graphY = y*cellH,
+			textX = graphX+(cellW/2),
+			textY = graphY+(cellH/2);
 
 		this.context.fillStyle = "#603D61";
 		this.context.strokeStyle = "#503251";
 		this.context.font = "italic 14pt Arial";
 		this.context.textBaseline = 'middle';
 		this.context.textAlign = "center";
-		this.context.fillRect(graphX, graphY, cellX, cellY);
-		this.context.strokeRect(graphX, graphY, cellX, cellY);
+		this.context.fillRect(graphX, graphY, cellW, cellH);
+		this.context.strokeRect(graphX, graphY, cellW, cellH);
 
 		if (text == 0) {
 			this.context.fillStyle = "#69486B";
-			this.context.fillRect(graphX, graphY, cellX, cellY);
-			this.context.strokeRect(graphX, graphY, cellX, cellY);
+			this.context.fillRect(graphX, graphY, cellW, cellH);
+			this.context.strokeRect(graphX, graphY, cellW, cellH);
 		} else {
 			this.context.fillStyle = "#ffffff";
 			this.context.fillText(text, textX, textY);
