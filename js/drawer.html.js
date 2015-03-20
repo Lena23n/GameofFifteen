@@ -24,27 +24,24 @@ HtmlDrawer.prototype = {
 	drawCell : function (text, x, y) {
 		var cellW = this.cellSize.w,
 			cellH = this.cellSize.h,
-			graphX = x * cellW,
-			graphY = y * cellH,
-			textPaddingTop = (cellW/2)-7,
+			cellWPadding = this.cellSize.w - 2,
+			cellHPadding = this.cellSize.h - 2,
+			graphXPadding = x*cellW + 1,
+			graphYPadding = y*cellH + 1,
+			textPaddingTop = (cellW/2)-10,
 			div = document.createElement('div');
 
 		this.htmlField.appendChild(div);
 
-		div.style.width = cellW + 'px';
-		div.style.height = cellH + 'px';
-		div.style.left = graphX + 'px';
-		div.style.top = graphY + 'px';
+		div.style.width = cellWPadding + 'px';
+		div.style.height = cellHPadding + 'px';
+		div.style.left = graphXPadding + 'px';
+		div.style.top = graphYPadding + 'px';
 		div.style.paddingTop = textPaddingTop + 'px';
-		//div.style.position = 'absolute';
-		//div.style.border = '1px solid #503251';
-		//div.style.color = 'white';
 
 		if (text == 0) {
-			//div.style.background = '#69486B';
 			div.setAttribute('class','empty-chip');
 		} else {
-			//div.style.background = '#603D61';
 			div.textContent = text;
 			div.setAttribute('class','chip');
 		}

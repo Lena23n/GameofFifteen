@@ -33,6 +33,10 @@ CanvasDrawer.prototype =  {
 			cellH = this.cellSize.h,
 			graphX = x*cellW,
 			graphY = y*cellH,
+			cellWPadding = this.cellSize.w - 4,
+			cellHPadding = this.cellSize.h - 4,
+			graphXPadding = x*cellW + 2,
+			graphYPadding = y*cellH + 2,
 			textX = graphX+(cellW/2),
 			textY = graphY+(cellH/2);
 
@@ -41,12 +45,13 @@ CanvasDrawer.prototype =  {
 		this.context.font = "italic 14pt Arial";
 		this.context.textBaseline = 'middle';
 		this.context.textAlign = "center";
-		this.context.fillRect(graphX, graphY, cellW, cellH);
-		this.context.strokeRect(graphX, graphY, cellW, cellH);
+		this.context.fillRect(graphXPadding, graphYPadding, cellWPadding, cellHPadding);
+		this.context.strokeRect(graphXPadding, graphYPadding, cellWPadding, cellHPadding);
 
 		if (text == 0) {
 			this.context.fillStyle = "#69486B";
 			this.context.fillRect(graphX, graphY, cellW, cellH);
+			this.context.strokeStyle = "transparent";
 			this.context.strokeRect(graphX, graphY, cellW, cellH);
 		} else {
 			this.context.fillStyle = "#ffffff";

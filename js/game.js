@@ -185,7 +185,7 @@ Game.prototype =  {
 		}
 	},
 
-	exchangeCells : function (clickedCell,emptyCell) {
+	exchangeCells : function (clickedCell, emptyCell) {
 		var temp = this.gameArray[clickedCell];
 		this.gameArray[clickedCell] = this.gameArray[emptyCell];
 		this.gameArray[emptyCell] = temp;
