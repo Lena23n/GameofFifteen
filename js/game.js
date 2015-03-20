@@ -13,7 +13,7 @@ function Game (id) {
 	/*	this.isWinEndZero = false;
 	 this.isWinBeginZero = false;*/
 
-	this.isWinArray = false;
+	this.isPuzzleSolved = false;
 }
 
 Game.prototype =  {
@@ -40,11 +40,9 @@ Game.prototype =  {
 
 	startGame : function () {
 		// todo don't use different data types in array
-		this.gameArray = [1,0,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+		this.gameArray = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,0,15];
 		this.attachToDOM(this.id);
-		/*this.isWinEndZero = false;
-		 this.isWinBeginZero = false;*/
-		this.isWinArray = false;
+		this.isPuzzleSolved = false;
 		/*	this.shuffle(this.gameArray);*/
 		this.drawer.drawField(this.gameArray);
 
@@ -53,6 +51,7 @@ Game.prototype =  {
 	shuffle : function (array) {
 		// todo implement isFieldSolvable
 		return array.sort(function(){return Math.random() > 0.5});
+
 	},
 
 	clickEvent : function (e) {
@@ -71,7 +70,9 @@ Game.prototype =  {
 			positionDifference = Math.abs(i - emptyCellPosition),
 			isRowSiblings = (positionDifference == 1),
 			isColumnSiblings = (positionDifference == this.fieldSize.w),
-			isSameRowSiblings = Math.floor(emptyCellPosition / this.fieldSize.w) == (Math.floor(i / this.fieldSize.w));
+			emptyCellRow = Math.floor(emptyCellPosition / this.fieldSize.w),
+			currentCellRow = Math.floor(i / this.fieldSize.w),
+			isSameRowSiblings = emptyCellRow == currentCellRow;
 
 		if (isRowSiblings && isSameRowSiblings || isColumnSiblings) {
 			this.exchangeCells(i, emptyCellPosition);
@@ -79,58 +80,28 @@ Game.prototype =  {
 
 		this.checkWinArray(this.gameArray);
 
-		if (this.isWinArray) {
+		if (this.isPuzzleSolved) {
 			alert('Вы победили!');
 			this.endGame();
 		}
 
-		/*this.checkArrayBeginZero(this.gameArray);
-		 this.checkArrayEndZero(this.gameArray);
-
-		 if (this.isWinEndZero || this.isWinBeginZero) {
-		 alert('Вы победили!');
-		 this.endGame();
-		 }*/
-
 	},
 
 	checkWinArray : function (gameArray) {
-		var isPuzzleSolved = true;
+		this.isPuzzleSolved = true;
 
-		//for (var i = 0; i < gameArray.length - 1; i++) {
-		//	var currentChip = gameArray[i],
-		//		nextChip = gameArray[i + 1];
-		//	if (currentChip && nextChip > currentChip) {
-		//		// todo implement logic
-		//	}
-		//}
+		for (var i = 0; i < gameArray.length - 2; i++) {
+			var currentChip = gameArray[i],
+				nextChip = gameArray[i + 1];
 
-		for (var i = 0; i < gameArray.length; i++) {
-			var obj = gameArray[i];
-			if (obj >= i) {}
+			if (nextChip < currentChip) {
+				this.isPuzzleSolved = false;
+				break;
+			}
 		}
-
-
-		//for (var i = 0; i < gameArray.length-2; i++) {
-		//	if((gameArray[i] + 1) !== gameArray[i+1]) return false;
-		//}
-		// todo rename - isPuzzleSolved
-		this.isWinArray = true;
 	},
 
-	checkArrayBeginZero : function (gameArray) {
-		for (var i = 0; i < gameArray.length; i++) {
-			if(gameArray[i] !== i) return false;
-		}
-		this.isWinBeginZero = true;
-	},
 
-	checkArrayEndZero : function (gameArray) {
-		for (var i = 0; i < gameArray.length - 1; i++) {
-			if(gameArray[i] !== i+1) return false;
-		}
-		this.isWinEndZero = true;
-	},
 
 	exchangeCells : function (clickedCell,emptyCell) {
 		var temp = this.gameArray[clickedCell];
