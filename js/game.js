@@ -58,13 +58,12 @@ Game.prototype =  {
 
 		wrap = document.body.insertBefore(divWrap, sibling);
 		wrap.setAttribute('class','wrap');
-		console.log(wrap);
 
 		this.canvasButton = wrap.appendChild(divCanvasButton);
 		this.canvasButton.setAttribute('class','canvas-btn');
 		this.canvasButton.textContent = 'Canvas';
 
-		this.htmlButton = wrap.appendChild(divHtmlButton);;
+		this.htmlButton = wrap.appendChild(divHtmlButton);
 		this.htmlButton.setAttribute('class','html-btn');
 		this.htmlButton.textContent = 'Html';
 
@@ -77,8 +76,16 @@ Game.prototype =  {
 
 		this.isPuzzleSolved = false;
 		this.shuffle(this.gameArray);
+
+		var isFieldSolvable = this.isFieldSolvable();
+		while(!isFieldSolvable) {
+			var k = 'Перемешал';
+			this.shuffle(this.gameArray);
+			isFieldSolvable = this.isFieldSolvable();
+			console.log(k);
+		}
+
 		this.checkClickedButton();
-		this.isFieldSolvable(this.gameArray)
 	},
 
 	attachToDOM : function (id,child) {
@@ -90,15 +97,34 @@ Game.prototype =  {
 	},
 
 	shuffle : function (array) {
-		// todo implement isFieldSolvable
 		return array.sort(function(){return Math.random() > 0.5});
-
 	},
 
-	isFieldSolvable : function (array) {
-		for (var i = 0; i > array.length; i++) {
+	isFieldSolvable : function () {
+		var k = 0,
+			isOdd,
+			i,
+			j,
+			emptyCellRow;
 
+		// k = count of pairs in which previous number greater than next number
+
+		for (i = 1; i < this.gameArray.length; i++) {
+			for (j = i - 1; j >= 0; j--) {
+				if(this.gameArray[j] > this.gameArray[i]) {
+					k++
+				}
+			}
 		}
+
+		for (i = 0; i < this.gameArray.length; i++) {
+			if (this.gameArray[i] == 0) {
+				emptyCellRow = Math.ceil(i/4);
+			}
+		}
+
+		isOdd = !!((k+emptyCellRow)%2);
+		return isOdd;
 	},
 
 	clickEvent : function (e) {
@@ -106,7 +132,6 @@ Game.prototype =  {
 	},
 
 	checkClickedButton : function () {
-		this.clearHolder();
 
 		if (this.isCanvasChosen) {
 
@@ -131,12 +156,14 @@ Game.prototype =  {
 	},
 
 	canvasButtonClicked : function () {
+		this.clearHolder();
 		this.isCanvasChosen = true;
 		this.isHtmlChosen = false;
 		this.checkClickedButton();
 	},
 
 	htmlButtonClicked : function () {
+		this.clearHolder();
 		this.isCanvasChosen = false;
 		this.isHtmlChosen = true;
 		this.checkClickedButton();
@@ -159,7 +186,7 @@ Game.prototype =  {
 			isSameRowSiblings = emptyCellRow == currentCellRow;
 
 		if (isRowSiblings && isSameRowSiblings || isColumnSiblings) {
-			this.exchangeCells(i, emptyCellPosition);
+			this.exchangeCells(i, x, y, emptyCellPosition);
 		}
 
 		this.checkWinArray(this.gameArray);
@@ -185,20 +212,22 @@ Game.prototype =  {
 		}
 	},
 
-	exchangeCells : function (clickedCell, emptyCell) {
+	exchangeCells : function (clickedCell, clickedCellX, clickedCellY, emptyCell) {
 		var temp = this.gameArray[clickedCell];
 		this.gameArray[clickedCell] = this.gameArray[emptyCell];
 		this.gameArray[emptyCell] = temp;
 
 
 		if (this.isCanvasChosen) {
-			this.drawer.drawField(this.gameArray);
+			//this.drawer.drawField(this.gameArray);
+			this.drawer.move(this.gameArray, clickedCell, emptyCell);
 		} else if (this.isHtmlChosen) {
-			this.drawerHtml.drawField(this.gameArray);
+			this.drawerHtml.move(clickedCell, clickedCellX, clickedCellY, emptyCell);
 		}
 	},
 
 	endGame : function () {
+		this.clearHolder();
 		this.startGame();
 	}
 };

@@ -8,6 +8,7 @@ function CanvasDrawer () {
 	this.canvasHeight = null;
 	this.width = 500;
 	this.height = 500;
+	this.chips = [];
 
 	this.cellSize = {
 		w: null,
@@ -59,16 +60,110 @@ CanvasDrawer.prototype =  {
 		}
 	},
 
+	move : function (array,clicked,empty) {
+
+		//var fpsInterval,
+		//	timeBefore,
+		//	requestId,
+		//	now,
+		//	elapsed,
+		//	self = this;
+
+		//var cellWPadding = this.cellSize.w - 4,
+		//	cellHPadding = this.cellSize.h - 4,
+		//	emptyCellX = this.chips[empty].x,
+		//	emptyCellY = this.chips[empty].y,
+		//	emptyText = this.chips[empty].value,
+		//	temp = this.chips[clicked],
+		//	tempX = this.chips[clicked].x,
+		//	tempY = this.chips[clicked].y,
+		//	tempText = this.chips[clicked].value;
+		//
+		//this.context.clearRect(tempX*this.cellSize.w, tempY*this.cellSize.h, cellWPadding, cellWPadding);
+		////this.context.clearRect(emptyCellX*this.cellSize.w, emptyCellY*this.cellSize.h, cellWPadding, cellWPadding);
+		////this.drawCell(emptyText, emptyCellX,emptyCellY);
+		//this.drawCell(tempText, tempX, tempY);
+		//
+		//this.chips[clicked] = this.chips[empty];
+		//this.chips[empty] = temp;
+		//
+		//this.chips[empty].x = tempX;
+		//this.chips[empty].y = tempY;
+		//this.chips[clicked].x = emptyCellX;
+		//this.chips[clicked].y = emptyCellY;
+		//
+		//console.log(this.chips[empty], this.chips[clicked]);
+		//this.drawField(array);
+		//this.drawCell(emptyText, emptyCellX,emptyCellY);
+		//this.context.clearRect(tempX, tempY, cellWPadding, cellWPadding);
+
+
+		//function startTick() {
+		//	timeBefore = Date.now();
+		//	tick();
+		//}
+		//
+		//function tick() {
+		//	fpsInterval = 10;
+		//
+		//	requestAnimationFrame(tick);
+		//
+		//	//if (!self.stopped) {
+		//		requestId = requestAnimationFrame(tick);
+		//	//}
+		//	now = Date.now();
+		//	elapsed = now - timeBefore;
+		//
+		//	if (elapsed > fpsInterval) {
+		//		timeBefore = now - (elapsed % fpsInterval);
+		//		self.drawField(array);
+		//
+		//	} else {
+		//		self.drawField(array);
+		//	}
+		//}
+		//	startTick();
+
+		var emptyCellDiv = this.chips[empty],
+			clickedCellDiv = this.chips[clicked],
+			cellW = this.cellSize.w,
+			cellH = this.cellSize.h,
+			cellWPadding = this.cellSize.w - 4,
+			cellHPadding = this.cellSize.h - 4,
+			fieldWidth = 4,
+			clickedX = this.chips[clicked].x*cellW + 1,
+			clickedY = this.chips[clicked].y*cellH + 1,
+			emptyX = (this.chips[empty].x % fieldWidth)*cellW + 1,
+			emptyY = (Math.floor(this.chips[empty].y/fieldWidth))*cellH + 1;
+
+		this.context.clearRect(clickedX, clickedY, cellW,cellH);
+
+		this.chips[empty].value = this.chips[clicked].value;
+
+		this.drawCell(this.chips[empty].value, this.chips[empty].x, this.chips[empty].y);
+	},
+
 	drawField : function (field) {
 		this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+		this.chips = [];
+
 		var x,
 			y,
 			fieldWidth = 4;
 
+		this.context.translate(0, 0);
 		for ( var i = 0; i < field.length; i++) {
 			var text = field[i];
+
 			x = i % fieldWidth;
 			y = Math.floor(i/fieldWidth);
+
+			var chip = {
+				value:text,
+				x: x,
+				y: y
+			};
+			this.chips.push(chip);
 			this.drawCell(text, x, y);
 		}
 	}

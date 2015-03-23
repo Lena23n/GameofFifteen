@@ -2,7 +2,9 @@ function HtmlDrawer () {
 	this.htmlField = null;
 	this.width = 500;
 	this.height = 500;
+	this.chips = [];
 
+	this.isActive = true;
 
 	this.cellSize = {
 		w: null,
@@ -45,10 +47,43 @@ HtmlDrawer.prototype = {
 			div.textContent = text;
 			div.setAttribute('class','chip');
 		}
+		this.chips.push(div);
+	},
 
+	move : function (clickedCell, clickedCellX, clickedCellY, emptyCell) {
+
+		// todo isActive -> false
+
+		var emptyCellDiv = this.chips[emptyCell],
+			clickedCellDiv = this.chips[clickedCell],
+			cellW = this.cellSize.w,
+			cellH = this.cellSize.h,
+			fieldWidth = 4,
+			clickedX = clickedCellX*cellW + 1,
+			clickedY = clickedCellY*cellH + 1,
+			emptyX = (emptyCell%fieldWidth)*cellW + 1,
+			emptyY = (Math.floor(emptyCell/fieldWidth))*cellH + 1;
+
+		emptyCellDiv.style.left = clickedX + 'px';
+		emptyCellDiv.style.top = clickedY + 'px';
+
+		clickedCellDiv.style.left = emptyX + 'px';
+		clickedCellDiv.style.top = emptyY + 'px';
+
+		// todo onTransitionEnd event -> isActive = true
+
+		this.rewriteChipsInArray(emptyCell, clickedCell);
+	},
+
+	rewriteChipsInArray : function (empty, clicked) {
+		var temp = this.chips[clicked];
+		this.chips[clicked] = this.chips[empty];
+		this.chips[empty] = temp;
 	},
 
 	drawField : function (field) {
+		this.htmlField.innerHTML = "";
+		this.chips = [];
 		var x,
 			y,
 			fieldWidth = 4;
@@ -60,5 +95,4 @@ HtmlDrawer.prototype = {
 			this.drawCell(text, x, y);
 		}
 	}
-
 };

@@ -32,6 +32,8 @@ canvas {
 	line-height: 14px;
 	background: #603D61;
 	text-align: center;
+	transition: all 0.5s ease;
+	z-index: 10;
 }
 
 .empty-chip {
