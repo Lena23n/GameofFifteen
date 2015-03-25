@@ -5,17 +5,26 @@ function Game (id) {
 		h: 4
 	};
 	this.gameArray = [];
-	this.drawer = new CanvasDrawer();
-	this.drawerHtml = new HtmlDrawer();
+
+	this.availableDrawers = {
+		canvas : new CanvasDrawer(),
+		html : new HtmlDrawer()
+	};
+
+	this.buttons = {
+		canvas : 'canvas',
+		html : 'html'
+	};
+
+	this.drawer = this.availableDrawers['canvas'];
+	this.activeButton = this.buttons['canvas'];
 	this.holder = null;
 	this.offSetX = null;
 	this.offSetY = null;
 	this.isPuzzleSolved = false;
-	this.isCanvasChosen = false;
-	this.isHtmlChosen = false;
 	this.canvasButton = null;
 	this.htmlButton = null;
-	this.celldSize = {
+	this.celleSize = {
 		w: null,
 		h: null
 	};
@@ -24,10 +33,8 @@ function Game (id) {
 Game.prototype =  {
 	init : function () {
 		var self = this;
-		this.drawer.createCanvas(this.fieldSize.w, this.fieldSize.h);
-		this.drawerHtml.createHtmlField(this.fieldSize.w, this.fieldSize.h);
-		this.createButton();
 
+		this.createButton();
 		this.holder = document.getElementById(this.id);
 
 		// todo create 'holder' element for game
@@ -35,12 +42,8 @@ Game.prototype =  {
 			self.clickEvent(e);
 		});
 
-		this.canvasButton.addEventListener('click', function () {
-			self.canvasButtonClicked();
-		});
-
-		this.htmlButton.addEventListener('click', function () {
-			self.htmlButtonClicked();
+		document.getElementById('wrap').addEventListener('click', function (e) {
+			self.buttonClickEvent(e);
 		});
 
 		this.offSetX = this.holder.offsetLeft;
@@ -57,35 +60,35 @@ Game.prototype =  {
 			wrap;
 
 		wrap = document.body.insertBefore(divWrap, sibling);
-		wrap.setAttribute('class','wrap');
+		wrap.setAttribute('id','wrap');
 
 		this.canvasButton = wrap.appendChild(divCanvasButton);
 		this.canvasButton.setAttribute('class','canvas-btn');
+		this.canvasButton.setAttribute('button','canvas');
 		this.canvasButton.textContent = 'Canvas';
 
 		this.htmlButton = wrap.appendChild(divHtmlButton);
 		this.htmlButton.setAttribute('class','html-btn');
+		this.htmlButton.setAttribute('button','html');
 		this.htmlButton.textContent = 'Html';
 
 	},
 
 	startGame : function () {
-		// todo don't use different data types in array
 		this.gameArray = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0];
-		this.isCanvasChosen = true;
 
 		this.isPuzzleSolved = false;
 		this.shuffle(this.gameArray);
 
 		var isFieldSolvable = this.isFieldSolvable();
 		while(!isFieldSolvable) {
-			var k = 'Перемешал';
+			var k = 'Sort';
 			this.shuffle(this.gameArray);
 			isFieldSolvable = this.isFieldSolvable();
 			console.log(k);
 		}
 
-		this.checkClickedButton();
+		this.createField();
 	},
 
 	attachToDOM : function (id,child) {
@@ -131,47 +134,33 @@ Game.prototype =  {
 		this.defineCoords(e);
 	},
 
-	checkClickedButton : function () {
+	buttonClickEvent : function (e) {
+		var clickedButton = e.target.getAttribute('button');
 
-		if (this.isCanvasChosen) {
+		this.clearHolder();
 
-			this.attachToDOM(this.id,this.drawer.canvas);
-			this.drawer.drawField(this.gameArray);
-			this.canvasButton.classList.add('active');
-			this.htmlButton.classList.remove('active');
-
-			this.celldSize.w = this.drawer.cellSize.w;
-			this.celldSize.h = this.drawer.cellSize.h;
-
-		} else if (this.isHtmlChosen) {
-
-			this.attachToDOM(this.id, this.drawerHtml.htmlField);
-			this.drawerHtml.drawField(this.gameArray);
-			this.htmlButton.classList.add('active');
-			this.canvasButton.classList.remove('active');
-
-			this.celldSize.w = this.drawerHtml.cellSize.w;
-			this.celldSize.h = this.drawerHtml.cellSize.h;
-		}
+		this.checkClickedButton(clickedButton);
 	},
 
-	canvasButtonClicked : function () {
-		this.clearHolder();
-		this.isCanvasChosen = true;
-		this.isHtmlChosen = false;
-		this.checkClickedButton();
+	checkClickedButton : function (button) {
+		this.drawer = this.availableDrawers[button];
+
+		this.createField();
+		// todo Buttons active
 	},
 
-	htmlButtonClicked : function () {
-		this.clearHolder();
-		this.isCanvasChosen = false;
-		this.isHtmlChosen = true;
-		this.checkClickedButton();
+	createField : function () {
+		this.drawer.createField(this.fieldSize.w, this.fieldSize.h);
+		this.attachToDOM(this.id, this.drawer.field);
+		this.drawer.drawField(this.gameArray);
+
+		this.celleSize.w = this.drawer.cellSize.w;
+		this.celleSize.h = this.drawer.cellSize.h;
 	},
 
 	defineCoords : function (e) {
-		var x = Math.floor((e.clientX - this.offSetX)/this.celldSize.w);
-		var y = Math.floor((e.clientY - this.offSetY)/this.celldSize.h);
+		var x = Math.floor((e.clientX - this.offSetX)/this.celleSize.w);
+		var y = Math.floor((e.clientY - this.offSetY)/this.celleSize.h);
 		this.checkCells(x, y);
 	},
 
@@ -213,17 +202,17 @@ Game.prototype =  {
 	},
 
 	exchangeCells : function (clickedCell, clickedCellX, clickedCellY, emptyCell) {
-		var temp = this.gameArray[clickedCell];
-		this.gameArray[clickedCell] = this.gameArray[emptyCell];
-		this.gameArray[emptyCell] = temp;
 
-
-		if (this.isCanvasChosen) {
-			//this.drawer.drawField(this.gameArray);
-			this.drawer.move(this.gameArray, clickedCell, emptyCell);
-		} else if (this.isHtmlChosen) {
-			this.drawerHtml.move(clickedCell, clickedCellX, clickedCellY, emptyCell);
+		// todo rename isAnimate
+		if (!this.drawer.isAnimate) {
+			var temp = this.gameArray[clickedCell];
+			this.gameArray[clickedCell] = this.gameArray[emptyCell];
+			this.gameArray[emptyCell] = temp;
 		}
+
+		// todo unify this
+
+		this.drawer.move(this.gameArray, clickedCell, emptyCell, clickedCellX, clickedCellY);
 	},
 
 	endGame : function () {

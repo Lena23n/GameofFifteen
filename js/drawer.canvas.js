@@ -9,6 +9,12 @@ function CanvasDrawer () {
 	this.width = 500;
 	this.height = 500;
 	this.chips = [];
+	this.duration = 400;
+	this.fieldSize = {
+		w: 4,
+		h: 4
+	};
+	this.isAnimate = false;
 
 	this.cellSize = {
 		w: null,
@@ -17,16 +23,16 @@ function CanvasDrawer () {
 }
 
 CanvasDrawer.prototype =  {
-	createCanvas : function (w, h) {
-		this.canvas = document.createElement('canvas');
-		this.context =  this.canvas.getContext('2d');
-		this.canvas.width = this.width;
-		this.canvasWidth = this.canvas.width;
-		this.canvas.height = this.height;
-		this.canvasHeight = this.canvas.height;
+	createField : function (w, h) {
+		this.field = document.createElement('canvas');
+		this.context =  this.field.getContext('2d');
+		this.field.width = this.width;
+		this.canvasWidth = this.field.width;
+		this.field.height = this.height;
+		this.canvasHeight = this.field.height;
 
-		this.cellSize.w = this.canvasWidth/w;
-		this.cellSize.h = this.canvasHeight/h;
+		this.cellSize.w = this.width/w;
+		this.cellSize.h = this.height/h;
 	},
 
 	drawCell : function (text, x, y) {
@@ -41,106 +47,82 @@ CanvasDrawer.prototype =  {
 			textX = graphX+(cellW/2),
 			textY = graphY+(cellH/2);
 
-		this.context.fillStyle = "#603D61";
-		this.context.strokeStyle = "#503251";
-		this.context.font = "italic 14pt Arial";
-		this.context.textBaseline = 'middle';
-		this.context.textAlign = "center";
-		this.context.fillRect(graphXPadding, graphYPadding, cellWPadding, cellHPadding);
-		this.context.strokeRect(graphXPadding, graphYPadding, cellWPadding, cellHPadding);
-
-		if (text == 0) {
-			this.context.fillStyle = "#69486B";
-			this.context.fillRect(graphX, graphY, cellW, cellH);
-			this.context.strokeStyle = "transparent";
-			this.context.strokeRect(graphX, graphY, cellW, cellH);
-		} else {
+		if (text !== 0) {
+			this.context.fillStyle = "#603D61";
+			this.context.strokeStyle = "#503251";
+			this.context.font = "italic 14pt Arial";
+			this.context.textBaseline = 'middle';
+			this.context.textAlign = "center";
+			this.context.fillRect(graphXPadding, graphYPadding, cellWPadding, cellHPadding);
+			this.context.strokeRect(graphXPadding, graphYPadding, cellWPadding, cellHPadding);
 			this.context.fillStyle = "#ffffff";
 			this.context.fillText(text, textX, textY);
 		}
 	},
 
 	move : function (array,clicked,empty) {
+		var self = this,
+			now,
+			dTime,
+			startTime,
+			diffX,
+			diffY,
+			dx,
+			dy,
+			frameCount,
+			milliSecPerFrame = 16;
 
-		//var fpsInterval,
-		//	timeBefore,
-		//	requestId,
-		//	now,
-		//	elapsed,
-		//	self = this;
+		if (self.isAnimate) {
+			return false;
+		}
 
-		//var cellWPadding = this.cellSize.w - 4,
-		//	cellHPadding = this.cellSize.h - 4,
-		//	emptyCellX = this.chips[empty].x,
-		//	emptyCellY = this.chips[empty].y,
-		//	emptyText = this.chips[empty].value,
-		//	temp = this.chips[clicked],
-		//	tempX = this.chips[clicked].x,
-		//	tempY = this.chips[clicked].y,
-		//	tempText = this.chips[clicked].value;
-		//
-		//this.context.clearRect(tempX*this.cellSize.w, tempY*this.cellSize.h, cellWPadding, cellWPadding);
-		////this.context.clearRect(emptyCellX*this.cellSize.w, emptyCellY*this.cellSize.h, cellWPadding, cellWPadding);
-		////this.drawCell(emptyText, emptyCellX,emptyCellY);
-		//this.drawCell(tempText, tempX, tempY);
-		//
-		//this.chips[clicked] = this.chips[empty];
-		//this.chips[empty] = temp;
-		//
-		//this.chips[empty].x = tempX;
-		//this.chips[empty].y = tempY;
-		//this.chips[clicked].x = emptyCellX;
-		//this.chips[clicked].y = emptyCellY;
-		//
-		//console.log(this.chips[empty], this.chips[clicked]);
-		//this.drawField(array);
-		//this.drawCell(emptyText, emptyCellX,emptyCellY);
-		//this.context.clearRect(tempX, tempY, cellWPadding, cellWPadding);
+		this.isAnimate = true;
+
+		startTime = Date.now();
+
+		var tick = function () {
+			var emptyCell = self.chips[empty],
+				clickedCell = self.chips[clicked];
+
+			now = Date.now();
+
+			dTime = now - startTime;
+
+			diffX = emptyCell.x - clickedCell.x;
+			diffY = emptyCell.y - clickedCell.y;
+
+			frameCount = (self.duration - dTime + milliSecPerFrame)/milliSecPerFrame;
+
+			dx = diffX/frameCount;
+			dy = diffY/frameCount;
+
+			clickedCell.x += dx;
+			clickedCell.y += dy;
+
+			if (dTime > self.duration) {
+				self.drawField(array);
+				self.isAnimate = false;
+			}
 
 
-		//function startTick() {
-		//	timeBefore = Date.now();
-		//	tick();
-		//}
-		//
-		//function tick() {
-		//	fpsInterval = 10;
-		//
-		//	requestAnimationFrame(tick);
-		//
-		//	//if (!self.stopped) {
-		//		requestId = requestAnimationFrame(tick);
-		//	//}
-		//	now = Date.now();
-		//	elapsed = now - timeBefore;
-		//
-		//	if (elapsed > fpsInterval) {
-		//		timeBefore = now - (elapsed % fpsInterval);
-		//		self.drawField(array);
-		//
-		//	} else {
-		//		self.drawField(array);
-		//	}
-		//}
-		//	startTick();
+			self.redrawField(self.chips);
 
-		var emptyCellDiv = this.chips[empty],
-			clickedCellDiv = this.chips[clicked],
-			cellW = this.cellSize.w,
-			cellH = this.cellSize.h,
-			cellWPadding = this.cellSize.w - 4,
-			cellHPadding = this.cellSize.h - 4,
-			fieldWidth = 4,
-			clickedX = this.chips[clicked].x*cellW + 1,
-			clickedY = this.chips[clicked].y*cellH + 1,
-			emptyX = (this.chips[empty].x % fieldWidth)*cellW + 1,
-			emptyY = (Math.floor(this.chips[empty].y/fieldWidth))*cellH + 1;
+			if (self.isAnimate) requestAnimationFrame(tick);
+		};
 
-		this.context.clearRect(clickedX, clickedY, cellW,cellH);
+		tick();
+	},
 
-		this.chips[empty].value = this.chips[clicked].value;
+	redrawField : function (field) {
+		this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 
-		this.drawCell(this.chips[empty].value, this.chips[empty].x, this.chips[empty].y);
+		for ( var i = 0; i < field.length; i++) {
+			var x = field[i].x,
+				y = field[i].y,
+				text = field[i].value;
+
+			this.drawCell(text, x, y);
+		}
 	},
 
 	drawField : function (field) {

@@ -1,10 +1,15 @@
 function HtmlDrawer () {
-	this.htmlField = null;
+	this.field = null;
 	this.width = 500;
 	this.height = 500;
 	this.chips = [];
 
-	this.isActive = true;
+	this.fieldSize = {
+		w: 4,
+		h: 4
+	};
+
+	this.isActive = false;
 
 	this.cellSize = {
 		w: null,
@@ -13,11 +18,11 @@ function HtmlDrawer () {
 }
 
 HtmlDrawer.prototype = {
-	createHtmlField : function (w, h) {
-		this.htmlField = document.createElement('div');
-		this.htmlField.style.width = this.width + 'px';
-		this.htmlField.style.height = this.height + 'px';
-		this.htmlField.style.position = 'relative';
+	createField : function (w, h) {
+		this.field = document.createElement('div');
+		this.field.style.width = this.width + 'px';
+		this.field.style.height = this.height + 'px';
+		this.field.style.position = 'relative';
 
 		this.cellSize.w = this.width/w;
 		this.cellSize.h = this.height/h;
@@ -33,7 +38,7 @@ HtmlDrawer.prototype = {
 			textPaddingTop = (cellW/2)-10,
 			div = document.createElement('div');
 
-		this.htmlField.appendChild(div);
+		this.field.appendChild(div);
 
 		div.style.width = cellWPadding + 'px';
 		div.style.height = cellHPadding + 'px';
@@ -50,29 +55,41 @@ HtmlDrawer.prototype = {
 		this.chips.push(div);
 	},
 
-	move : function (clickedCell, clickedCellX, clickedCellY, emptyCell) {
+	move : function (array, clickedCell, emptyCell) {
 
 		// todo isActive -> false
 
-		var emptyCellDiv = this.chips[emptyCell],
-			clickedCellDiv = this.chips[clickedCell],
+		if(this.isActive) {
+			console.log('ou');
+			return false;
+		}
+
+		this.isActive = true;
+
+		var clickedCellDiv = this.chips[clickedCell],
 			cellW = this.cellSize.w,
 			cellH = this.cellSize.h,
 			fieldWidth = 4,
-			clickedX = clickedCellX*cellW + 1,
-			clickedY = clickedCellY*cellH + 1,
 			emptyX = (emptyCell%fieldWidth)*cellW + 1,
 			emptyY = (Math.floor(emptyCell/fieldWidth))*cellH + 1;
-
-		emptyCellDiv.style.left = clickedX + 'px';
-		emptyCellDiv.style.top = clickedY + 'px';
 
 		clickedCellDiv.style.left = emptyX + 'px';
 		clickedCellDiv.style.top = emptyY + 'px';
 
-		// todo onTransitionEnd event -> isActive = true
+
+		this.isActive = false;
 
 		this.rewriteChipsInArray(emptyCell, clickedCell);
+
+		//clickedCellDiv.addEventListener('webkitTransitionEnd', this.endAnimation(emptyCell, clickedCell));
+
+	},
+
+	endAnimation : function (emptyCell, clickedCell) {
+		console.log('hi');
+
+		this.field.removeEventListener('webkitTransitionEnd', self.endAnimation);
+
 	},
 
 	rewriteChipsInArray : function (empty, clicked) {
@@ -82,7 +99,7 @@ HtmlDrawer.prototype = {
 	},
 
 	drawField : function (field) {
-		this.htmlField.innerHTML = "";
+		this.field.innerHTML = "";
 		this.chips = [];
 		var x,
 			y,
